@@ -19,6 +19,64 @@ void print(vector<vector<int> > vss) {
     cout << endl;
 }
 
+void check_TM(string TM, int input_length) {
+    /* Take a string encoding of a turing machine
+
+    If the TM beats the previous best TM in some category, write it to the appropiate file.
+    Else if the TM doesn't complete in the max number of steps, write it to a file to be checked later.
+    Hopefully there are very few of these.*/
+    int best_steps = 0;
+    int best_ones = 0;
+    int best_alt = 0;
+    int best_any = 0;
+
+    /*  TODO: Write the functions used below:
+            bin
+            check_for_loops
+            fast_simulate
+            matches_pattern
+    */
+
+    // TODO: Use 2**input_length
+    for(int i = 0; i < 32; i++) {
+        string input = "0" + bin(i);
+
+        // Check if the TM loops quickly
+        bool no_loops = check_for_loops(TM, input, 10000);
+
+        if(no_loops) {
+            // Simulate it for 1 billion steps.
+            vector<int> res = fast_simulate(TM, input, 1000000000);
+
+            int steps_taken = res[0];
+            // TODO: Remove steps from the top of the tape
+            vector<int> tape = res;
+
+            if(steps_taken == -1) {
+                // It didn't complete
+                // TODO: Write (TM, input) to a file
+            }
+
+            if(steps_taken >= best_steps) {
+                // Group 1 new contender
+                // TODO: Output and write to file
+            }
+
+            int len = tape.size();
+            if(len > best_ones && matches_pattern(tape, "1")) {
+                // Group 2 new contender
+                // TODO: Output and write to file
+            } else if(len > best_alt && matches_pattern(tape, "01")) {
+                // Group 3 new contender
+                // TODO: Output and write to file
+            } else if(len > best_any && matches_pattern(tape, "*")) {
+                // Group 4 new contender
+                // TODO: Output and write to file
+            }
+        }
+    }
+}
+
 int main() {
     string encoding;
 
