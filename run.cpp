@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-
+#include <bitset>
 
 using namespace std;
 
@@ -38,6 +38,8 @@ void check_TM(string TM, int input_length) {
     */
 
     // TODO: Use 2**input_length
+    int limit = 0;
+    string s = std::bitset<32>(v).to_string();
     for(int i = 0; i < 32; i++) {
         string input = "0" + bin(i);
 
