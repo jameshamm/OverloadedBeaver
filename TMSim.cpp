@@ -29,12 +29,25 @@ vector<int> itotape(string TM_input) {
 }
 
 void print(vector<int> tape) {
-    for (auto i = tape.begin(); i != tape.end(); ++i)
-        std::cout << *i << ' ';
+    for(auto& el: tape) std::cout << el << ' ';
     cout << endl;
 }
 
-int simulate(vector<vector<int> > TM, string TM_input, int steps) {
+vector<int> shorten_tape(vector<int> tape) {
+    /*  Shorten the tape by removing unecessary 2's (blanks)
+        from the end of it.
+    */
+    int i = tape.size()-1;
+    for(; i >= 0; --i) {
+        if(tape[i] != 2) {
+            tape.resize(i+1);
+            return tape;
+        }
+    }
+    return tape;
+}
+
+vector<int> fast_simulate(vector<vector<int> > TM, string TM_input, int steps) {
     /* Return the state reached after supplied steps */
 
     vector<int> tape = itotape(TM_input);
@@ -56,14 +69,16 @@ int simulate(vector<vector<int> > TM, string TM_input, int steps) {
         int write = (data % 10) % 3;
         current_state = data / 10;
 
-        // Write to tape
-        tape[head] = write;
-
         if(current_state == halt_state) {
             // This highlights the last place that is written to in the tape
-            tape[head] = 4;  
-            return i+1;
+            tape[head] = 4;
+            vector<int> res = shorten_tape(tape);
+            res.push_back(i+1);
+            return res;
         }
+
+        // Write to tape
+        tape[head] = write;
 
         // move head
         if(move == 0) {
@@ -74,15 +89,17 @@ int simulate(vector<vector<int> > TM, string TM_input, int steps) {
             head++;
         }
     }
-    return 0;
+
+    vector<int> res = shorten_tape(tape);
+    res.push_back(-1);
+    return res;
 }
 
-int simulate2(vector<vector<int> > TM, string TM_input, int steps) {
+bool check_for_loops(vector<vector<int> > TM, string TM_input, int steps) {
     /*  Return the state reached after supplied steps
         If the TM has not finished by the number of steps, returns 0
         If the TM has looped, return -1
     */
-
     std::set<vector<int> > seen;
 
     vector<int> tape = itotape(TM_input);
@@ -107,7 +124,8 @@ int simulate2(vector<vector<int> > TM, string TM_input, int steps) {
         tape[head] = write;
 
         if(current_state == halt_state) {
-            return i+1;  // steps taken
+            // Doesn't loop if it halts
+            return true;
         }
 
         // move head
@@ -119,15 +137,15 @@ int simulate2(vector<vector<int> > TM, string TM_input, int steps) {
             head++;
         }
 
-        vector<int> statis = tape;
-        statis.insert(statis.begin(), head);
-        statis.insert(statis.begin(), current_state);
+        vector<int> stasis = shorten_tape(tape);
+        stasis.push_back(current_state);
+        stasis.push_back(head);
 
-        if(seen.find(statis) != seen.end()) {
-            return -1;
+        if(seen.find(stasis) != seen.end()) {
+            return false;
         } else {
-            seen.insert(statis);
+            seen.insert(stasis);
         }
     }
-    return 0;  // hasn't looped, or halted
+    return true;  // hasn't looped, or halted
 }
