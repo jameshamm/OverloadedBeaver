@@ -24,20 +24,20 @@ string bin(int len, int i) {
     return std::bitset<20>(i).to_string().substr(20 - len);
 }
 
-bool all_ones(vector<int> tape) {
+bool all_ones(const vector<int> & tape) {
     // Expects a tape with no 2s at the end
     for(int i = 0; i < tape.size(); i++) {
         if(tape[i] == 4) {
             continue;
         }
-        if(tape[i] != 1) {
+        else if(tape[i] != 1) {
             return false;
         }
     }
     return true;
 }
 
-bool all_zero_ones(vector<int> tape) {
+bool all_zero_ones(const vector<int> & tape) {
     // Expects a tape with no 2s at the end)
     if(tape.size() % 2 == 1) {
         return false;
@@ -46,14 +46,14 @@ bool all_zero_ones(vector<int> tape) {
         if(tape[i] == 4){
             continue;
         }
-        if(tape[i] != i % 2) {
+        else if(tape[i] != i % 2) {
             return false;
         }
     }
     return true;
 }
 
-bool all_not_blank(vector<int> tape) {
+bool all_not_blank(vector<int> & tape) {
     // Expects a tape with no 2s at the end)
     for(int i = 0; i < tape.size(); i++) {
         if(tape[i] == 2){
@@ -63,16 +63,16 @@ bool all_not_blank(vector<int> tape) {
     return true;
 }
 
-vector<int> check_TM(string encoding, int input_length, int best_steps, int best_ones, int best_alt, int best_any) {
+void check_TM(string encoding, int input_length, int * bests) {
     /* Take a string encoding of a turing machine
 
     If the TM beats the previous best TM in some category, write it to the appropiate file.
     Else if the TM doesn't complete in the max number of steps, write it to a file to be checked later.
     Hopefully there are very few of these.*/
-    // int best_steps = 2;
-    // int best_ones = 0;
-    // int best_alt = 0;
-    // int best_any = 0;
+    int best_steps = bests[0];
+    int best_ones = bests[1];
+	int best_alt = bests[2];
+	int best_any = bests[3];
 
     vector<vector<int> > TM = parse_TM(encoding);
 
@@ -95,50 +95,68 @@ vector<int> check_TM(string encoding, int input_length, int best_steps, int best
                 // It didn't complete
                 // TODO: Write (TM, input) to a file
             }
+            else{
+                if(steps_taken >= best_steps) {
+                    // Group 1 new contender
+                    // TODO: Output and write to file
+                    best_steps = steps_taken;
+                    cout << "NEW CHAMPION G1: took " << steps_taken << " steps, " << encoding << ", " << input << endl;
+                }
 
-            if(steps_taken >= best_steps) {
-                // Group 1 new contender
-                // TODO: Output and write to file
-                best_steps = steps_taken;
-                cout << "NEW CHAMPION G1: took " << steps_taken << " steps, " << encoding << ", " << input << endl;
-            }
-
-            if(len > best_ones && all_ones(res)) {
-                // Group 2 new contender
-                // TODO: Output and write to file
-                best_ones = len;
-                cout << "NEW HERO G2: " << len << " 1s, " << encoding << ", " << input << endl;
-                print(res);
-            } else if(len > best_alt && all_zero_ones(res)) {
-                // Group 3 new contender
-                // TODO: Output and write to file
-                best_alt = len;
-                cout << "NEW LEADER G3: " << len << " 01s, " << encoding << ", " << input << endl;
-                print(res);
-            } else if(len > best_any && all_not_blank(res)) {
-                // Group 4 new contender
-                // TODO: Output and write to file
-                best_any = len;
-                cout << "NEW VICTOR G4: " << len << " *s, " << encoding << ", " << input << endl;
+                if(len > best_ones && all_ones(res)) {
+                    // Group 2 new contender
+                    // TODO: Output and write to file
+                	if(len>best_any){
+                		best_any = len;
+                		cout << "NEW VICTOR G4: " << len << " *s, " << encoding << ", " << input << endl;
+                	}
+                    best_ones = len;
+                    cout << "NEW HERO G2: " << len << " 1s, " << encoding << ", " << input << endl;
+                } else if(len > best_alt && all_zero_ones(res)) {
+                    // Group 3 new contender
+                    // TODO: Output and write to file
+                	if(len>best_any){
+    					best_any = len;
+    					cout << "NEW VICTOR G4: " << len << " *s, " << encoding << ", " << input << endl;
+    				}
+                    best_alt = len;
+                    cout << "NEW LEADER G3: " << len << " 01s, " << encoding << ", " << input << endl;
+                } else if(len > best_any && all_not_blank(res)) {
+                    // Group 4 new contender
+                    // TODO: Output and write to filenew
+                    best_any = len;
+                    cout << "NEW VICTOR G4: " << len << " *s, " << encoding << ", " << input << endl;
+                }
             }
         }
     }
-    return {best_steps, best_ones, best_alt, best_any};
+    bests[0] = best_steps;
+    bests[1] = best_ones;
+    bests[2] = best_alt;
+    bests[3] = best_any;
 }
 
 
 void manage(vector<string> encodings) {
-    vector<int> b = {2, 0, 0, 0};
-    vector<int> v = {2, 0, 0, 0};
-    for(auto i : encodings) {
-        v = check_TM(i, 6, v[0], v[1], v[2], v[3]);
-        b = check_TM(i, 7, b[0], b[1], b[2], b[3]);
+    int * a = new int[4];
+    int * b = new int[4];
+
+    for(int i = 0; i < 4; i++) {
+    	a[i] = 2;
+    	b[i] = 2;
     }
+
+    for(auto i : encodings) {
+        check_TM(i, 6, a);
+        check_TM(i, 7, b);
+    }
+    delete[] a;
+    delete[] b;
 }
 
 int main() {
     ifstream myReadFile;
-    myReadFile.open("data/nb_TMs.txt");
+    myReadFile.open("../data/nb_TMs.txt");
 
     vector<string> encodings;
     string encoding;

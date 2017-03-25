@@ -90,8 +90,7 @@ vector<int> fast_simulate(vector<vector<int> > TM, string TM_input, int steps) {
         }
     }
 
-    vector<int> res = shorten_tape(tape);
-    res.push_back(-1);
+    vector<int> res {-1};
     return res;
 }
 
