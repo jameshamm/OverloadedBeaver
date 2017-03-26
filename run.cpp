@@ -146,9 +146,15 @@ void manage(vector<string> encodings) {
     	b[i] = 2;
     }
 
+    int j = 0;
     for(auto i : encodings) {
         check_TM(i, 6, a);
         check_TM(i, 7, b);
+        j++;
+        if(j % 100 == 0) {
+            cout << "Reached " << i << ", ";
+            cout << j * 100.0 / encodings.size() << "%" << endl; 
+        }
     }
     delete[] a;
     delete[] b;
@@ -156,33 +162,46 @@ void manage(vector<string> encodings) {
 
 int main() {
     ifstream myReadFile;
-    myReadFile.open("../data/nb_TMs.txt");
+    myReadFile.open("data/nb_TMs.txt");
 
     vector<string> encodings;
     string encoding;
-    while(!myReadFile.eof()) {
 
+    int prev_run = 0; // Which line to start from
+
+    int j = 0;
+    while(!myReadFile.eof()) {
         getline(myReadFile, encoding);
         if(encoding.length() < 3) {
             continue;
         }
+        if(j < prev_run) {
+            j++;
+            continue;
+        }
+
         encodings.push_back(encoding);
     }
+
+    cout << "Starting from " << j;
+    cout << ", encoding " << encodings[0] << endl; 
 
     int thread_count = 4;
     std::thread *tt = new std::thread[thread_count];
 
-    int part_size = encodings.size() / thread_count;
+    vector<vector<string> > encodings_split;
+    for(int i = 0; i < thread_count; i++) {
+        vector<string> encodings_s;
+        encodings_split.push_back(encodings_s);
+    }
 
-    for (int i = 0; i < thread_count; i++) {
-        if(i == thread_count-1) {
-            std::vector<string> encodings_split(encodings.begin() + part_size * i, encodings.end());
-            tt[i] = std::thread(manage, encodings_split);
-        }
-        else {
-            std::vector<string> encodings_split(encodings.begin() + part_size * i, encodings.begin() + part_size * (i+1));
-            tt[i] = std::thread(manage, encodings_split);
-        }
+    for(int i = 0; i < encodings.size(); i++) {
+        string encoding = encodings[i];
+        encodings_split[i%4].push_back(encoding);
+    }
+
+    for(int i = 0; i < thread_count; i++) {
+        tt[i] = std::thread(manage, encodings_split[i%4]);
     }
 
     // could do something here
