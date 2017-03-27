@@ -14,29 +14,36 @@ string bin(int len, int i) {
     return std::bitset<20>(i).to_string().substr(20 - len);
 }
 
-bool all_ones(const vector<int> & tape) {
+bool all_same(const vector<int> & tape) {
     // Expects a tape with no 2s at the end
-    for(int i = 0; i < tape.size(); i++) {
+    // There should only be a single 4 on the tape
+    if(tape[0] == 2 || tape[1] == 2) {
+        return false;
+    }
+    int expected = (tape[0] == 4) ? tape[1] : tape[0];
+
+    for(int i = 2; i < tape.size(); i++) {
         if(tape[i] == 4) {
             continue;
         }
-        else if(tape[i] != 1) {
+        else if(tape[i] != expected) {
             return false;
         }
     }
     return true;
 }
 
-bool all_zero_ones(const vector<int> & tape) {
+bool all_alternating(const vector<int> & tape) {
     // Expects a tape with no 2s at the end)
-    if(tape.size() % 2 == 1) {
+    if(tape.size() % 2 == 1 || tape[0] == 2 || tape[1] == 2) {
         return false;
     }
+    int expected = (tape[0] == 4) ? tape[2] : tape[0];
     for(int i = 0; i < tape.size(); i++) {
         if(tape[i] == 4){
             continue;
         }
-        else if(tape[i] != i % 2) {
+        else if(tape[i] != (i + expected) % 2) {
             return false;
         }
     }
@@ -93,7 +100,7 @@ void check_TM(string encoding, int input_length, int * bests) {
                     cout << "NEW CHAMPION G1: took " << steps_taken << " steps, " << encoding << ", " << input << endl;
                 }
 
-                if(len > best_ones && all_ones(res)) {
+                if(len > best_ones && all_same(res)) {
                     // Group 2 new contender
                     // TODO: Output and write to file
                 	if(len>best_any){
@@ -102,7 +109,7 @@ void check_TM(string encoding, int input_length, int * bests) {
                 	}
                     best_ones = len;
                     cout << "NEW HERO G2: " << len << " 1s, " << encoding << ", " << input << endl;
-                } else if(len > best_alt && all_zero_ones(res)) {
+                } else if(len > best_alt && all_alternating(res)) {
                     // Group 3 new contender
                     // TODO: Output and write to file
                 	if(len>best_any){
@@ -152,7 +159,7 @@ void manage(vector<string> encodings) {
 
 int main() {
     ifstream myReadFile;
-    myReadFile.open("data/nb_TMs.txt");
+    myReadFile.open("data/dualless_nb_tms.txt");
 
     vector<string> encodings;
     string encoding;
@@ -176,7 +183,7 @@ int main() {
     cout << "Starting from " << j;
     cout << ", encoding " << encodings[0] << endl; 
 
-    int thread_count = 4;
+    int thread_count = 1;
     std::thread *tt = new std::thread[thread_count];
 
     vector<vector<string> > encodings_split;

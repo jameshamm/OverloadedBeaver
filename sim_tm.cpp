@@ -26,7 +26,7 @@ int main(){
     int steps_taken = res[len];
     res.pop_back();
     
-    cout << "Ran the tm " << encoding << " for " << steps_taken << " steps." << endl;
+    cout << "Ran " << encoding << " for " << steps_taken << " steps." << endl;
 
     if(!no_loop) {
         cout << "It looped." << endl;

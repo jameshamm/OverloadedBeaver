@@ -33,8 +33,21 @@ def dual(encoding):
 
 
 def remove_duals(input_file, output_file):
-    encoding = "000111211015"
-    print(dual(encoding))
+    with open(input_file, "r") as f:
+        lines = f.readlines()
+    
+    lines = [line.strip() for line in lines]
+    seen = set()
+
+    for line in lines:
+        if dual(line) in seen:
+            continue
+        seen.add(line)
+
+    lines = sorted(seen)
+
+    with open(output_file, "w+") as f:
+        f.write("\n".join(lines))
 
 
 if __name__ == "__main__":
