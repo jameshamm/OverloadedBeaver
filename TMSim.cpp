@@ -28,8 +28,18 @@ vector<int> itotape(string TM_input) {
     return tape;
 }
 
-void print(vector<int> tape) {
+void print_tape(vector<int> tape) {
     for(auto& el: tape) std::cout << el << ' ';
+    cout << endl;
+}
+
+void print_tm(vector<vector<int> > vss) {
+    for (auto i = vss.begin(); i != vss.end(); ++i) {
+        for (auto j = (*i).begin(); j != (*i).end(); ++j) {
+            int num = *j;
+            std::cout << num/10 << num%10;
+        }
+    }
     cout << endl;
 }
 
