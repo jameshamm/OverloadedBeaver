@@ -17,6 +17,7 @@ string bin(int len, int i) {
 bool all_same(const vector<int> & tape) {
     // Expects a tape with no 2s at the end
     // There should only be a single 4 on the tape
+    // Assumes the tape length is at least 2
     if(tape[0] == 2 || tape[1] == 2) {
         return false;
     }
@@ -35,7 +36,8 @@ bool all_same(const vector<int> & tape) {
 
 bool all_alternating(const vector<int> & tape) {
     // Expects a tape with no 2s at the end)
-    if(tape.size() % 2 == 1 || tape[0] == 2 || tape[1] == 2) {
+    // Assumes the tape length is at least 3
+    if(tape.size() % 2 == 1 || tape[0] == 2 || tape[2] == 2) {
         return false;
     }
     int expected = (tape[0] == 4) ? tape[2] : tape[0];
@@ -66,6 +68,7 @@ void check_TM(string encoding, int input_length, int * bests) {
     If the TM beats the previous best TM in some category, write it to the appropiate file.
     Else if the TM doesn't complete in the max number of steps, write it to a file to be checked later.
     Hopefully there are very few of these.*/
+
     int best_steps = bests[0];
     int best_ones = bests[1];
 	int best_alt = bests[2];
@@ -85,7 +88,9 @@ void check_TM(string encoding, int input_length, int * bests) {
             vector<int> res = fast_simulate(TM, input, 1000000000);
 
             int len = res.size()-1;
+
             int steps_taken = res[len];
+
             res.pop_back();
 
             if(steps_taken == -1) {
@@ -139,8 +144,8 @@ void manage(vector<string> encodings) {
     int * b = new int[4];
 
     for(int i = 0; i < 4; i++) {
-    	a[i] = 2;
-    	b[i] = 2;
+    	a[i] = 3;
+    	b[i] = 3;
     }
 
     int j = 0;
@@ -159,7 +164,7 @@ void manage(vector<string> encodings) {
 
 int main() {
     ifstream myReadFile;
-    myReadFile.open("data/dualless_nb_tms.txt");
+    myReadFile.open("data/dualless_nb_TMs.txt");
 
     vector<string> encodings;
     string encoding;
@@ -194,11 +199,11 @@ int main() {
 
     for(int i = 0; i < encodings.size(); i++) {
         string encoding = encodings[i];
-        encodings_split[i%4].push_back(encoding);
+        encodings_split[i%thread_count].push_back(encoding);
     }
 
     for(int i = 0; i < thread_count; i++) {
-        tt[i] = std::thread(manage, encodings_split[i%4]);
+        tt[i] = std::thread(manage, encodings_split[i%thread_count]);
     }
 
     // could do something here
