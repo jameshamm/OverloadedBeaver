@@ -62,7 +62,7 @@ bool all_not_blank(vector<int> & tape) {
     return true;
 }
 
-void check_TM(string encoding, int input_length, int * bests) {
+void check_TM(string encoding, int * bests, ofstream& unknown) {
     /* Take a string encoding of a turing machine
 
     If the TM beats the previous best TM in some category, write it to the appropiate file.
@@ -76,57 +76,55 @@ void check_TM(string encoding, int input_length, int * bests) {
 
     vector<vector<int> > TM = parse_TM(encoding);
 
-    int limit = 1 << input_length-1;
-    for(int i = 0; i < limit; i++) {
-        string input = "1" + bin(input_length-1, i);
+    string input = "2";
 
-        // Check if the TM loops quickly
-        bool no_loops = check_for_loops(TM, input, 10000);
+    // Check if the TM loops quickly
+    bool no_loops = check_for_loops(TM, input, 1000);
 
-        if(no_loops) {
-            // Simulate it for 1 billion steps.
-            vector<int> res = fast_simulate(TM, input, 1000000000);
+    if(no_loops) {
+        // Simulate it for 1 million steps.
+        vector<int> res = fast_simulate(TM, input, 1000000);
 
-            int len = res.size()-1;
-            int steps_taken = res[len];
-            res.pop_back();
+        int len = res.size()-1;
+        int steps_taken = res[len];
+        res.pop_back();
 
-            if(steps_taken == -1) {
-                // It didn't complete
-                // TODO: Write (TM, input) to a file
+        if(steps_taken == -1) {
+            // It didn't complete
+            // TODO: Write TM to a file
+            unknown << encoding << endl;
+        }
+        else{
+            if(steps_taken >= best_steps) {
+                // Group 1 new contender
+                // TODO: Output and write to file
+                best_steps = steps_taken;
+                cout << "NEW CHAMPION G1: took " << steps_taken << " steps, " << encoding << endl;
             }
-            else{
-                if(steps_taken >= best_steps) {
-                    // Group 1 new contender
-                    // TODO: Output and write to file
-                    best_steps = steps_taken;
-                    cout << "NEW CHAMPION G1: took " << steps_taken << " steps, " << encoding << ", " << input << endl;
-                }
 
-                if(len > best_ones && all_same(res)) {
-                    // Group 2 new contender
-                    // TODO: Output and write to file
-                    if(len>best_any){
-                        best_any = len;
-                        cout << "NEW VICTOR G4: " << len << " *s, " << encoding << ", " << input << endl;
-                    }
-                    best_ones = len;
-                    cout << "NEW HERO G2: " << len << " 1s, " << encoding << ", " << input << endl;
-                } else if(len > best_alt && all_alternating(res)) {
-                    // Group 3 new contender
-                    // TODO: Output and write to file
-                    if(len>best_any){
-                        best_any = len;
-                        cout << "NEW VICTOR G4: " << len << " *s, " << encoding << ", " << input << endl;
-                    }
-                    best_alt = len;
-                    cout << "NEW LEADER G3: " << len << " 01s, " << encoding << ", " << input << endl;
-                } else if(len > best_any && all_not_blank(res)) {
-                    // Group 4 new contender
-                    // TODO: Output and write to filenew
+            if(len > best_ones && all_same(res)) {
+                // Group 2 new contender
+                // TODO: Output and write to file
+                if(len > best_any){
                     best_any = len;
-                    cout << "NEW VICTOR G4: " << len << " *s, " << encoding << ", " << input << endl;
+                    cout << "NEW VICTOR G4: " << len << " *s, " << encoding << endl;
                 }
+                best_ones = len;
+                cout << "NEW HERO G2: " << len << " 1s, " << encoding << endl;
+            } else if(len > best_alt && all_alternating(res)) {
+                // Group 3 new contender
+                // TODO: Output and write to file
+                if(len > best_any){
+                    best_any = len;
+                    cout << "NEW VICTOR G4: " << len << " *s, " << encoding << endl;
+                }
+                best_alt = len;
+                cout << "NEW LEADER G3: " << len << " 01s, " << encoding << endl;
+            } else if(len > best_any && all_not_blank(res)) {
+                // Group 4 new contender
+                // TODO: Output and write to filenew
+                best_any = len;
+                cout << "NEW VICTOR G4: " << len << " *s, " << encoding << endl;
             }
         }
     }
@@ -146,45 +144,40 @@ void manage(vector<string> encodings) {
         b[i] = 3;
     }
 
+    std::ofstream unknown("data/unknown_b_TMs.txt", std::ios_base::app);
+
     int j = 0;
     for(auto i : encodings) {
-        check_TM(i, 6, a);
-        check_TM(i, 7, b);
+        check_TM(i, a, unknown);
         j++;
         if(j % 100 == 0) {
             cout << "Reached " << i << ", ";
             cout << j * 100.0 / encodings.size() << "%" << endl; 
         }
     }
+
+    unknown.close();
     delete[] a;
     delete[] b;
 }
 
 int main() {
     ifstream myReadFile;
-    myReadFile.open("data/dualless_nb_TMs.txt");
+    myReadFile.open("data/trimmed_b_TMs.txt");
 
     vector<string> encodings;
     string encoding;
 
-    int prev_run = 0; // Which line to start from
-
-    int j = 0;
     while(!myReadFile.eof()) {
         getline(myReadFile, encoding);
         if(encoding.length() < 3) {
             continue;
         }
-        if(j < prev_run) {
-            j++;
-            continue;
-        }
-
         encodings.push_back(encoding);
     }
 
-    cout << "Starting from " << j;
-    cout << ", encoding " << encodings[0] << endl; 
+    // Clear the file of unknown TMs
+    std::ofstream unknown("data/unknown_b_TMs.txt", std::ios_base::trunc);
 
     int thread_count = 1;
     std::thread *tt = new std::thread[thread_count];

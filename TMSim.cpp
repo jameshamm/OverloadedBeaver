@@ -44,8 +44,7 @@ void print_tm(vector<vector<int> > vss) {
 }
 
 vector<int> shorten_tape(vector<int> tape) {
-    /*  Shorten the tape by removing unecessary 2's (blanks)
-        from the end of it.
+    /*  Shorten the tape by removing unnecessary 2's (blanks) from the end of it.
     */
     int i = tape.size()-1;
     for(; i >= 0; --i) {
