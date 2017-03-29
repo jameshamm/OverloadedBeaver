@@ -14,7 +14,9 @@ MACRO(add_exec name)
 ENDMACRO()
 
 #here we apply our macros
-add_exec(run)
+add_exec(brute_b)
+add_exec(brute_nb)
+add_exec(sim_tm)
 add_exec(TM)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -pthread")

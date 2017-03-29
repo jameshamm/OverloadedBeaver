@@ -148,7 +148,7 @@ void manage(vector<string> encodings) {
         b[i] = 3;
     }
 
-    std::ofstream unknown("data/unknown_nb_TMs.txt", std::ios_base::app);
+    std::ofstream unknown("../data/unknown_nb_TMs.txt", std::ios_base::app);
 
     int j = 0;
     for(auto i : encodings) {
@@ -166,7 +166,7 @@ void manage(vector<string> encodings) {
 
 int main() {
     ifstream myReadFile;
-    myReadFile.open("data/trimmed_nb_TMs.txt");
+    myReadFile.open("../data/trimmed_nb_TMs.txt");
 
     vector<string> encodings;
     string encoding;
@@ -190,9 +190,9 @@ int main() {
     cout << "Starting from " << j;
     cout << ", encoding " << encodings[0] << endl;
 
-    std::ofstream unknown("data/unknown_nb_TMs.txt", std::ios_base::trunc);
+    std::ofstream unknown("../data/unknown_nb_TMs.txt", std::ios_base::trunc);
 
-    int thread_count = 2;
+    int thread_count = 4;
     std::thread *tt = new std::thread[thread_count];
 
     vector<vector<string> > encodings_split;

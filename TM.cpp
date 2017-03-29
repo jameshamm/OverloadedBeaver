@@ -10,7 +10,7 @@ using namespace std;
 int main(){
 	string encoding = "000110011121";
 	string input = "1111111";
-	vector<vector<int> > tm = parse_TM(encoding);
+	vector<vector<unsigned char> > tm = parse_TM(encoding);
 
 	vector<int> res = fast_simulate(tm, input, 1000000000);
 	cout << res[res.size()-1] << endl;

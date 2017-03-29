@@ -11,7 +11,7 @@ using namespace std;
 int main(){
     string encoding, input;
     cin >> encoding >> input;
-    vector<vector<int> > tm = parse_TM(encoding);
+    vector<vector<unsigned char> > tm = parse_TM(encoding);
 
     int steps = 10000;
     bool no_loop = check_for_loops(tm, input, steps);
