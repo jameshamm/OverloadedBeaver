@@ -6,12 +6,12 @@
 #include <set>
 using namespace std;
 
-vector<vector<int>> parse_TM(string TM_encoding) {
-    vector<vector<int>> TM;
+vector<vector<unsigned char>> parse_TM(string TM_encoding) {
+    vector<vector<unsigned char>> TM;
     int offset = 6;
     for(int i = 0; i < TM_encoding.length(); i += offset) {
         string s = TM_encoding.substr(i, offset);
-        vector<int> state;
+        vector<unsigned char> state;
         for(int j = 0; j < offset; j += 2) {
             state.push_back(stoi(s.substr(j, 2)));
         }
@@ -33,7 +33,7 @@ void print_tape(vector<int> tape) {
     cout << endl;
 }
 
-void print_tm(vector<vector<int> > vss) {
+void print_tm(vector<vector<unsigned char> > vss) {
     for (auto i = vss.begin(); i != vss.end(); ++i) {
         for (auto j = (*i).begin(); j != (*i).end(); ++j) {
             int num = *j;
@@ -56,9 +56,8 @@ vector<int> shorten_tape(vector<int> tape) {
     return tape;
 }
 
-vector<int> fast_simulate(vector<vector<int> > TM, string TM_input, int steps) {
+vector<int> fast_simulate(const vector<vector<unsigned char> > TM, const string TM_input, int steps) {
     /* Return the state reached after supplied steps */
-
     vector<int> tape = itotape(TM_input);
 
     int head = 0;
@@ -66,18 +65,10 @@ vector<int> fast_simulate(vector<vector<int> > TM, string TM_input, int steps) {
     int halt_state = 2;
 
     for(int i = 0; i < steps; i++){
-
         // Read from tape
-        if(head >= tape.size()) {
-            tape.push_back(2);
-        }
-        int cell = tape[head];
-        int data = TM[current_state][cell];  // get transition for this state/input
+        int data = TM[current_state][tape[head]];  // get transition for this state/input
 
-        int move = data % 2;
-        int write = (data % 10) % 3;
         current_state = data / 10;
-
         if(current_state == halt_state) {
             // This highlights the last place that is written to in the tape
             tape[head] = 4;
@@ -87,23 +78,25 @@ vector<int> fast_simulate(vector<vector<int> > TM, string TM_input, int steps) {
         }
 
         // Write to tape
-        tape[head] = write;
+        tape[head] = (data % 10) % 3;
 
         // move head
-        if(move == 0) {
-            if(head != 0) {
-                head--;
+        if(data & 1) {
+            if(++head == tape.size()) {
+                tape.push_back(2);
             }
         } else {
-            head++;
+            if(head) {
+                --head;
+            }
         }
     }
 
-    vector<int> res {-1};
+    vector<int> res {0};
     return res;
 }
 
-bool check_for_loops(vector<vector<int> > TM, string TM_input, int steps) {
+bool check_for_loops(vector<vector<unsigned char> > TM, string TM_input, int steps) {
     /*  Return the state reached after supplied steps
         If the TM has not finished by the number of steps, returns 0
         If the TM has looped, return -1
@@ -116,33 +109,27 @@ bool check_for_loops(vector<vector<int> > TM, string TM_input, int steps) {
     int halt_state = 2;
 
     for(int i = 0; i < steps; i++){
-
         // Read from tape
-        if(head >= tape.size()) {
-            tape.push_back(2);
-        }
-        int cell = tape[head];
-        int data = TM[current_state][cell];  // get transition for this state/input
+        int data = TM[current_state][tape[head]];  // get transition for this state/input
 
-        int move = data % 2;
-        int write = (data % 10) % 3;
         current_state = data / 10;
-
-        // Write to tape
-        tape[head] = write;
-
         if(current_state == halt_state) {
             // Doesn't loop if it halts
             return true;
         }
 
+        // Write to tape
+        tape[head] = (data % 10) % 3;
+
         // move head
-        if(move == 0) {
-            if(head != 0) {
-                head--;
+        if(data & 1) {
+            if(++head == tape.size()) {
+                tape.push_back(2);
             }
         } else {
-            head++;
+            if(head) {
+                --head;
+            }
         }
 
         vector<int> stasis = shorten_tape(tape);
@@ -151,9 +138,8 @@ bool check_for_loops(vector<vector<int> > TM, string TM_input, int steps) {
 
         if(seen.find(stasis) != seen.end()) {
             return false;
-        } else {
-            seen.insert(stasis);
         }
+        seen.insert(stasis);
     }
     return true;  // hasn't looped, or halted
 }

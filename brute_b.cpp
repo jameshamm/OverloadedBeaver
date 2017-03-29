@@ -52,7 +52,7 @@ bool all_alternating(const vector<int> & tape) {
     return true;
 }
 
-bool all_not_blank(vector<int> & tape) {
+bool all_not_blank(const vector<int> & tape) {
     // Expects a tape with no 2s at the end)
     for(int i = 0; i < tape.size(); i++) {
         if(tape[i] == 2){
@@ -74,7 +74,7 @@ void check_TM(string encoding, int * bests, ofstream& unknown) {
     int best_alt = bests[2];
     int best_any = bests[3];
 
-    vector<vector<int> > TM = parse_TM(encoding);
+    vector<vector<unsigned char> > TM = parse_TM(encoding);
 
     string input = "2";
 
@@ -87,9 +87,8 @@ void check_TM(string encoding, int * bests, ofstream& unknown) {
 
         int len = res.size()-1;
         int steps_taken = res[len];
-        res.pop_back();
-
-        if(steps_taken == -1) {
+        
+        if(steps_taken == 0) {
             // It didn't complete
             // TODO: Write TM to a file
             unknown << encoding << endl;
@@ -99,32 +98,34 @@ void check_TM(string encoding, int * bests, ofstream& unknown) {
                 // Group 1 new contender
                 // TODO: Output and write to file
                 best_steps = steps_taken;
-                cout << "NEW CHAMPION G1: took " << steps_taken << " steps, " << encoding << endl;
+                cout << "  NEW CHAMPION G1: took " << steps_taken << " steps, " << encoding << endl;
             }
+
+            res.pop_back();
 
             if(len > best_ones && all_same(res)) {
                 // Group 2 new contender
                 // TODO: Output and write to file
                 if(len > best_any){
                     best_any = len;
-                    cout << "NEW VICTOR G4: " << len << " *s, " << encoding << endl;
+                    cout << "  NEW VICTOR G4: " << len << " *s, " << encoding << endl;
                 }
                 best_ones = len;
-                cout << "NEW HERO G2: " << len << " 1s, " << encoding << endl;
+                cout << "  NEW HERO G2: " << len << " 1s, " << encoding << endl;
             } else if(len > best_alt && all_alternating(res)) {
                 // Group 3 new contender
                 // TODO: Output and write to file
                 if(len > best_any){
                     best_any = len;
-                    cout << "NEW VICTOR G4: " << len << " *s, " << encoding << endl;
+                    cout << "  NEW VICTOR G4: " << len << " *s, " << encoding << endl;
                 }
                 best_alt = len;
-                cout << "NEW LEADER G3: " << len << " 01s, " << encoding << endl;
+                cout << "  NEW LEADER G3: " << len << " 01s, " << encoding << endl;
             } else if(len > best_any && all_not_blank(res)) {
                 // Group 4 new contender
                 // TODO: Output and write to filenew
                 best_any = len;
-                cout << "NEW VICTOR G4: " << len << " *s, " << encoding << endl;
+                cout << "  NEW VICTOR G4: " << len << " *s, " << encoding << endl;
             }
         }
     }
@@ -179,7 +180,7 @@ int main() {
     // Clear the file of unknown TMs
     std::ofstream unknown("data/unknown_b_TMs.txt", std::ios_base::trunc);
 
-    int thread_count = 1;
+    int thread_count = 2;
     std::thread *tt = new std::thread[thread_count];
 
     vector<vector<string> > encodings_split;

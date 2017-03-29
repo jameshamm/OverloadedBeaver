@@ -62,7 +62,7 @@ bool all_not_blank(vector<int> & tape) {
     return true;
 }
 
-void check_TM(string encoding, int input_length, int * bests) {
+void check_TM(string encoding, int input_length, int * bests, ofstream& unknown) {
     /* Take a string encoding of a turing machine
 
     If the TM beats the previous best TM in some category, write it to the appropiate file.
@@ -74,26 +74,26 @@ void check_TM(string encoding, int input_length, int * bests) {
     int best_alt = bests[2];
     int best_any = bests[3];
 
-    vector<vector<int> > TM = parse_TM(encoding);
+    vector<vector<unsigned char> > TM = parse_TM(encoding);
 
-    int limit = 1 << input_length-1;
+    int limit = 1 << input_length;
     for(int i = 0; i < limit; i++) {
-        string input = "1" + bin(input_length-1, i);
+        string input = bin(input_length, i);
 
         // Check if the TM loops quickly
-        bool no_loops = check_for_loops(TM, input, 10000);
+        bool no_loops = check_for_loops(TM, input, 1000);
 
         if(no_loops) {
             // Simulate it for 1 billion steps.
-            vector<int> res = fast_simulate(TM, input, 1000000000);
+            vector<int> res = fast_simulate(TM, input, 1000000);
 
             int len = res.size()-1;
             int steps_taken = res[len];
-            res.pop_back();
 
-            if(steps_taken == -1) {
+            if(steps_taken == 0) {
                 // It didn't complete
                 // TODO: Write (TM, input) to a file
+                unknown << encoding << " " << input << endl;
             }
             else{
                 if(steps_taken >= best_steps) {
@@ -102,6 +102,8 @@ void check_TM(string encoding, int input_length, int * bests) {
                     best_steps = steps_taken;
                     cout << "NEW CHAMPION G1: took " << steps_taken << " steps, " << encoding << ", " << input << endl;
                 }
+
+                res.pop_back();
 
                 if(len > best_ones && all_same(res)) {
                     // Group 2 new contender
@@ -146,10 +148,12 @@ void manage(vector<string> encodings) {
         b[i] = 3;
     }
 
+    std::ofstream unknown("data/unknown_nb_TMs.txt", std::ios_base::app);
+
     int j = 0;
     for(auto i : encodings) {
-        check_TM(i, 6, a);
-        check_TM(i, 7, b);
+        check_TM(i, 6, a, unknown);
+        check_TM(i, 7, b, unknown);
         j++;
         if(j % 100 == 0) {
             cout << "Reached " << i << ", ";
@@ -162,7 +166,7 @@ void manage(vector<string> encodings) {
 
 int main() {
     ifstream myReadFile;
-    myReadFile.open("data/dualless_nb_TMs.txt");
+    myReadFile.open("data/trimmed_nb_TMs.txt");
 
     vector<string> encodings;
     string encoding;
@@ -184,9 +188,11 @@ int main() {
     }
 
     cout << "Starting from " << j;
-    cout << ", encoding " << encodings[0] << endl; 
+    cout << ", encoding " << encodings[0] << endl;
 
-    int thread_count = 1;
+    std::ofstream unknown("data/unknown_nb_TMs.txt", std::ios_base::trunc);
+
+    int thread_count = 2;
     std::thread *tt = new std::thread[thread_count];
 
     vector<vector<string> > encodings_split;
