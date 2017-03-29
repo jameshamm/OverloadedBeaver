@@ -1,4 +1,5 @@
 #include "TMSim.cpp"
+#include "ResultMinder.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -14,4 +15,8 @@ int main(){
 
 	vector<int> res = fast_simulate(tm, input, 1000000000);
 	cout << res[res.size()-1] << endl;
+
+	ResultMinder r(10);
+	r.insert(10, "10", "2");
+	r.print("all 1s");
 }

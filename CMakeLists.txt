@@ -5,6 +5,7 @@
 cmake_minimum_required(VERSION 2.8.4)
 
 PROJECT(OverloadedBeaver)
+add_library(ResultMinder ResultMinder.cpp)
 
 # Since there are a lot of examples I'm going to use a macro to simply this
 # CMakeLists.txt file.  However, usually you will create only one executable in
@@ -23,3 +24,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DRELEASE")
+
+target_link_libraries(ResultMinder)
