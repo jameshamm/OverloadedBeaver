@@ -11,7 +11,7 @@
 
 using namespace std;
 
-const int MAX_STEPS = 3000;
+const int MAX_STEPS = 20000;
 
 string bin(int len, int i) {
     return std::bitset<20>(i).to_string().substr(20 - len);
@@ -132,9 +132,9 @@ void manage(ResultMinder* a, ResultMinder* b, ResultMinder* c, vector<string> en
 
     int j = 0;
     for(auto encoding : encodings) {
-        check_TM(a, inf_tms_out, 3, encoding);
-        check_TM(b, inf_tms_out, 4, encoding);
-        check_TM(c, inf_tms_out, 5, encoding);
+        check_TM(a, inf_tms_out, 8, encoding);
+        check_TM(b, inf_tms_out, 9, encoding);
+        //check_TM(c, inf_tms_out, 5, encoding);
         j++;
         if(j % 1000 == 0) {
             cout << "thread-" << thread_id << " reached " << encoding << ", ";
