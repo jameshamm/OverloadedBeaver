@@ -1,36 +1,58 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
-#include <queue>
+#include <mutex>
+#include <shared_mutex>
 
-using namespace std;
+#ifndef ResultMinder_H
+#define ResultMinder_H
 
 struct Contender {
     int score;
-    string encoding;
-    string input;
+    std::string encoding;
+    std::string input;
 
-    bool operator<(const Contender& rhs) {
+    Contender() {
+        this->score = 10;
+        this->encoding = "None";
+        this->input = "None";
+    }
+
+    Contender(int score, std::string encoding, std::string input) {
+        this->score = score;
+        this->encoding = encoding;
+        this->input = input;
+    }
+
+    bool operator<(const Contender& rhs) const {
         if(this->score > rhs.score) {
             return true;
         } else if(this->score <= rhs.score) {
             return false;
         }
+        return false;
     }
 
-    std::ostream& operator << (std::ostream &o) {
-        o << "(" << this->encoding << ", " << this->input << ", " << this->score << ")";
+    friend inline std::ostream& operator<<(std::ostream &o, const Contender& a) {
+        o << "(" << a.encoding << ", " << a.input << ", " << a.score << ")";
         return o;
     }
 };
 
 class ResultMinder {
     public:
-        ResultMinder(int size);
-        ~ResultMinder(){delete[] champs;};
-        int insert(int score, string encoding, string input);
-        void print(string group_message);
+        ResultMinder();
+        ResultMinder(int size, int group);
+        ~ResultMinder(){};
+        int lowest();
+        int insert(int score, std::string encoding, std::string input);
+        void print();
+        ResultMinder& operator=(const ResultMinder& other);
     private:
         Contender* champs;
         int size;
+        int group;
+        mutable std::shared_timed_mutex mu;
 };
+
+#endif
