@@ -108,18 +108,18 @@ void check_TM(ResultMinder* best, ofstream& inf_tms_out, int input_length, strin
                 if(len >= best_ones && all_same(res)) {
                     // Group 2 new contender
                     if(len >= best_any){
-                        best_any = best[3].insert(steps_taken, encoding, input);
+                        best_any = best[3].insert(len, encoding, input);
                     }
-                    best_ones = best[1].insert(steps_taken, encoding, input);
+                    best_ones = best[1].insert(len, encoding, input);
                 } else if(len >= best_alt && all_alternating(res)) {
                     // Group 3 new contender
                     if(len >= best_any){
-                        best_any = best[3].insert(steps_taken, encoding, input);
+                        best_any = best[3].insert(len, encoding, input);
                     }
-                    best_alt = best[2].insert(steps_taken, encoding, input);
+                    best_alt = best[2].insert(len, encoding, input);
                 } else if(len >= best_any && all_not_blank(res)) {
                     // Group 4 new contender
-                    best_any = best[3].insert(steps_taken, encoding, input);
+                    best_any = best[3].insert(len, encoding, input);
                 }
             }
         }
