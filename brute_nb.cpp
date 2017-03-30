@@ -127,13 +127,14 @@ void check_TM(ResultMinder* best, ofstream& inf_tms_out, int input_length, strin
 }
 
 
-void manage(ResultMinder* a, ResultMinder* b, vector<string> encodings, int thread_id) {
+void manage(ResultMinder* a, ResultMinder* b, ResultMinder* c, vector<string> encodings, int thread_id) {
     std::ofstream inf_tms_out("../data/unknown_nb_TMs.txt", std::ios_base::app);
 
     int j = 0;
     for(auto encoding : encodings) {
-        check_TM(a, inf_tms_out, 6, encoding);
-        check_TM(b, inf_tms_out, 7, encoding);
+        check_TM(a, inf_tms_out, 3, encoding);
+        check_TM(b, inf_tms_out, 4, encoding);
+        check_TM(c, inf_tms_out, 5, encoding);
         j++;
         if(j % 1000 == 0) {
             cout << "thread-" << thread_id << " reached " << encoding << ", ";
@@ -194,14 +195,16 @@ int main() {
 
     ResultMinder* a = new ResultMinder[4];
     ResultMinder* b = new ResultMinder[4];
+    ResultMinder* c = new ResultMinder[4];
 
     for(int i = 0; i < 4; ++i) {
         a[i] = ResultMinder(15, i);
         b[i] = ResultMinder(15, i);
+        c[i] = ResultMinder(15, i);
     }
 
     for(int i = 0; i < thread_count; i++) {
-        tt[i] = std::thread(manage, a, b, encodings_split[i%thread_count], i+1);
+        tt[i] = std::thread(manage, a, b, c, encodings_split[i%thread_count], i+1);
     }
 
     // could do something here
