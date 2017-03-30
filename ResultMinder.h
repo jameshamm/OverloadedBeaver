@@ -27,8 +27,11 @@ struct Contender {
     bool operator<(const Contender& rhs) const {
         if(this->score > rhs.score) {
             return true;
-        } else if(this->score <= rhs.score) {
+        } else if(this->score < rhs.score) {
             return false;
+        }
+        if(rhs.encoding == "None") {
+            return true;
         }
         return false;
     }
