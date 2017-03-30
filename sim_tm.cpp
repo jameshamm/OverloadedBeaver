@@ -27,6 +27,7 @@ int main(){
     res.pop_back();
     
     cout << "Ran " << encoding << " for " << steps_taken << " steps." << endl;
+    cout << "with a tape length of " << res.size() << "." << endl;     
 
     if(!no_loop) {
         cout << "It looped." << endl;
