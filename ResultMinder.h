@@ -13,7 +13,7 @@ struct Contender {
     std::string input;
 
     Contender() {
-        this->score = 10;
+        this->score = 13;
         this->encoding = "None";
         this->input = "None";
     }

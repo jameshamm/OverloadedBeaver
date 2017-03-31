@@ -136,7 +136,7 @@ void manage(ResultMinder* a, ResultMinder* b, ResultMinder* c, vector<string> en
         check_TM(b, inf_tms_out, 9, encoding);
         //check_TM(c, inf_tms_out, 5, encoding);
         j++;
-        if(j % 1000 == 0) {
+        if(j % 100 == 0) {
             cout << "thread-" << thread_id << " reached " << encoding << ", ";
             cout << j * 100.0 / encodings.size() << "%" << endl; 
         }
@@ -179,7 +179,7 @@ int main() {
     std::ofstream unknown("../data/unknown_nb_TMs.txt", std::ios_base::trunc);
     unknown.close();
 
-    int thread_count = 8;
+    int thread_count = 4;
     std::thread *tt = new std::thread[thread_count];
 
     vector<vector<string> > encodings_split;
